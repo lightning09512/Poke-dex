@@ -1,7 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { getCardBackground, capitalize, formatPokemonId } from '../utils/typeHelpers';
+import { fetchPokemonSpecies, fetchEvolutionChain, fetchPokemonByName } from '../utils/pokemonApi';
 
+const extractEvolutions = (chain) => {
+  const evos = [];
+  let current = chain;
+  
+  while (current) {
+    const details = current.evolution_details[0];
+    evos.push({
+      name: current.species.name,
+      min_level: details ? details.min_level : null
+    });
+    current = current.evolves_to[0];
+  }
+  return evos;
+};
 const StatBar = ({ label, value, max = 255, colorClass }) => {
   const [width, setWidth] = useState(0);
 
@@ -42,6 +57,61 @@ const SidebarDetails = ({ pokemon, isDark, onClose }) => {
       </div>
     );
   }
+
+  const [flavorText, setFlavorText] = useState('');
+  const [evolutions, setEvolutions] = useState([]);
+  const [loadingExtra, setLoadingExtra] = useState(false);
+
+  useEffect(() => {
+    if (!pokemon) return;
+
+    let isMounted = true;
+    const fetchExtraData = async () => {
+      setLoadingExtra(true);
+      try {
+        const speciesData = await fetchPokemonSpecies(pokemon.id);
+        if (!isMounted) return;
+
+        const entry = speciesData.flavor_text_entries.find(e => e.language.name === 'en');
+        if (entry) {
+          setFlavorText(entry.flavor_text.replace(/[\f\n\r]/g, ' '));
+        } else {
+          setFlavorText('No description available.');
+        }
+
+        const evoData = await fetchEvolutionChain(speciesData.evolution_chain.url);
+        if (!isMounted) return;
+
+        const evoList = extractEvolutions(evoData.chain);
+        const evoWithImages = await Promise.all(
+          evoList.map(async (evo) => {
+            try {
+               const pData = await fetchPokemonByName(evo.name);
+               return {
+                 ...evo,
+                 image: pData.sprites.other['official-artwork'].front_default || pData.sprites.front_default
+               };
+            } catch(e) { return evo; }
+          })
+        );
+
+        if (isMounted) setEvolutions(evoWithImages);
+
+      } catch (err) {
+        console.error('Failed to fetch extra details', err);
+      } finally {
+        if (isMounted) setLoadingExtra(false);
+      }
+    };
+
+    fetchExtraData();
+
+    return () => {
+      isMounted = false;
+      setFlavorText('');
+      setEvolutions([]);
+    };
+  }, [pokemon]);
 
   const primaryType = pokemon.types[0].type.name;
   const bgClass = getCardBackground(primaryType, isDark);
@@ -101,6 +171,13 @@ const SidebarDetails = ({ pokemon, isDark, onClose }) => {
         </div>
 
         <div className="mb-6">
+          <h3 className="text-base font-bold mb-3 text-slate-800 dark:text-white">Pokedex Entry</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 italic leading-relaxed bg-white/50 dark:bg-black/20 p-4 rounded-xl border border-white/50 dark:border-slate-700/50">
+            {loadingExtra ? 'Loading description...' : flavorText}
+          </p>
+        </div>
+
+        <div className="mb-6">
           <h3 className="text-base font-bold mb-3 text-slate-800 dark:text-white">Base Stats</h3>
           <div className="space-y-1">
             {pokemon.stats.map(stat => {
@@ -119,7 +196,7 @@ const SidebarDetails = ({ pokemon, isDark, onClose }) => {
           </div>
         </div>
 
-        <div className="pb-10">
+        <div className="pb-8">
           <h3 className="text-base font-bold mb-3 text-slate-800 dark:text-white">Abilities</h3>
           <div className="flex flex-wrap gap-2">
             {pokemon.abilities.map(a => (
@@ -127,6 +204,28 @@ const SidebarDetails = ({ pokemon, isDark, onClose }) => {
                 {capitalize(a.ability.name)} {a.is_hidden && <span className="text-xs text-slate-400 ml-1">(Hidden)</span>}
               </span>
             ))}
+          </div>
+        </div>
+
+        <div className="pb-10">
+          <h3 className="text-base font-bold mb-4 text-slate-800 dark:text-white">Evolution</h3>
+          <div className="flex items-center justify-center gap-2">
+            {loadingExtra ? (
+              <span className="text-slate-400 text-sm">Loading evolution...</span>
+            ) : evolutions.length > 0 ? (
+              evolutions.map((evo, i) => (
+                <React.Fragment key={evo.name}>
+                  <img src={evo.image} alt={evo.name} className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-md hover:scale-110 transition-transform cursor-pointer" />
+                  {i < evolutions.length - 1 && (
+                    <div className="bg-slate-200/80 dark:bg-slate-800 px-3 py-1 rounded-full text-[10px] font-bold text-slate-700 dark:text-slate-300 shadow-inner mx-1 uppercase tracking-wider">
+                      {evolutions[i+1].min_level ? `Lv. ${evolutions[i+1].min_level}` : '?'}
+                    </div>
+                  )}
+                </React.Fragment>
+              ))
+            ) : (
+              <span className="text-slate-400 text-sm">No evolution chain.</span>
+            )}
           </div>
         </div>
 

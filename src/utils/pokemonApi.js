@@ -28,3 +28,9 @@ export const fetchPokemonByName = async (name) => {
   if (!response.ok) throw new Error('Pokemon not found');
   return response.json();
 };
+
+export const fetchEvolutionChain = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Failed to fetch evolution chain');
+  return response.json();
+};
