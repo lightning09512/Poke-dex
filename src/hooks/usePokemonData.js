@@ -31,7 +31,7 @@ export const usePokemonData = () => {
       setCache(newCache);
     }
     
-    return urlsOrNames.map(item => newCache[item.name] || newCache[item.name]);
+    return urlsOrNames.map(item => newCache[item.name]).filter(Boolean);
   }, [cache]);
 
   useEffect(() => {
@@ -41,7 +41,6 @@ export const usePokemonData = () => {
       try {
         setLoading(true);
         setError(null);
-        let results = [];
 
         if (searchQuery) {
           // If searching, only fetch that specific Pokemon
@@ -66,21 +65,18 @@ export const usePokemonData = () => {
           const typePokemon = await fetchPokemonByType(selectedType);
           const paginated = typePokemon.slice(0, offset + limit);
           
-          await loadPokemonData(paginated);
+          const detailed = await loadPokemonData(paginated);
           
           if (isMounted) {
-            // we use the cache directly for mapping
-            const detailed = paginated.map(p => cache[p.name]).filter(Boolean);
             setPokemonList(detailed);
             setHasMore(offset + limit < typePokemon.length);
           }
         } else {
           // Standard pagination
           const data = await fetchPokemonList(offset, limit);
-          await loadPokemonData(data.results);
+          const detailed = await loadPokemonData(data.results);
           
           if (isMounted) {
-            const detailed = data.results.map(p => cache[p.name]).filter(Boolean);
             setPokemonList(prev => offset === 0 ? detailed : [...prev, ...detailed]);
             setHasMore(data.next !== null);
           }
