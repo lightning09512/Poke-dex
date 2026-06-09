@@ -128,16 +128,16 @@ const SidebarDetails = ({ pokemon, isDark, onClose }) => {
       </button>
 
       {/* Top Graphic Area */}
-      <div className="w-full pt-12 pb-6 px-6 flex flex-col items-center justify-center relative bg-white/10 dark:bg-black/10">
+      <div className="w-full pt-16 pb-2 px-6 flex flex-col items-center justify-center relative bg-white/10 dark:bg-black/10">
         <div className="absolute top-6 left-6 text-2xl font-bold text-slate-800/40 dark:text-white/30">
           {formatPokemonId(pokemon.id)}
         </div>
         
         <img 
-          key={pokemon.id} // Forces re-render animation when pokemon changes
-          src={pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default} 
+          key={pokemon.id} 
+          src={pokemon.sprites.versions?.['generation-v']?.['black-white']?.animated?.front_default || pokemon.sprites.front_default} 
           alt={pokemon.name}
-          className="w-56 h-56 object-contain filter drop-shadow-2xl z-10 animate-fade-in"
+          className="w-40 h-40 object-contain filter drop-shadow-2xl z-10 animate-fade-in [image-rendering:pixelated]"
         />
         
         <h2 className="text-4xl font-extrabold mt-4 text-slate-800 dark:text-white mb-4 animate-slide-up">

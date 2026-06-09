@@ -39,9 +39,9 @@ const PokemonCard = ({ pokemon, onClick }) => {
 
       <div className="relative z-10 w-full flex justify-end -mt-4">
         <img 
-          src={pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default} 
+          src={pokemon.sprites.versions?.['generation-v']?.['black-white']?.animated?.front_default || pokemon.sprites.front_default} 
           alt={pokemon.name}
-          className="w-32 h-32 object-contain filter drop-shadow-xl group-hover:scale-110 transition-transform duration-300"
+          className="w-32 h-32 object-contain filter drop-shadow-xl group-hover:scale-110 transition-transform duration-300 [image-rendering:pixelated]"
           loading="lazy"
         />
       </div>
