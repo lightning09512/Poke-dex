@@ -137,7 +137,7 @@ const SidebarDetails = ({ pokemon, isDark, onClose }) => {
           key={pokemon.id} 
           src={pokemon.sprites.versions?.['generation-v']?.['black-white']?.animated?.front_default || pokemon.sprites.front_default} 
           alt={pokemon.name}
-          className="w-40 h-40 object-contain filter drop-shadow-2xl z-10 animate-fade-in [image-rendering:pixelated]"
+          className="w-40 h-40 object-contain z-10 animate-fade-in [image-rendering:pixelated]"
         />
         
         <h2 className="text-4xl font-extrabold mt-4 text-slate-800 dark:text-white mb-4 animate-slide-up">
