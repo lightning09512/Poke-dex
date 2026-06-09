@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { getCardBackground, capitalize, formatPokemonId } from '../utils/typeHelpers';
+import { getCardBackground, getSolidTypeColor, capitalize, formatPokemonId } from '../utils/typeHelpers';
 import { fetchPokemonSpecies, fetchEvolutionChain, fetchPokemonByName } from '../utils/pokemonApi';
 
 const extractEvolutions = (chain) => {
@@ -146,7 +146,7 @@ const SidebarDetails = ({ pokemon, isDark, onClose }) => {
         
         <div className="flex gap-2 animate-slide-up">
           {pokemon.types.map(t => (
-            <span key={t.type.name} className="px-4 py-1.5 rounded-full text-sm font-semibold bg-white/50 dark:bg-black/30 text-slate-800 dark:text-slate-100 backdrop-blur-md">
+            <span key={t.type.name} className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-md tracking-wide uppercase ${getSolidTypeColor(t.type.name)}`}>
               {capitalize(t.type.name)}
             </span>
           ))}
@@ -160,11 +160,11 @@ const SidebarDetails = ({ pokemon, isDark, onClose }) => {
           <h3 className="text-base font-bold mb-3 text-slate-800 dark:text-white">About</h3>
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="glass-card p-3 rounded-xl flex flex-col items-center shadow-sm">
-              <span className="text-slate-500 dark:text-slate-400 mb-1 text-xs">Height</span>
+              <span className="text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider">Height</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">{pokemon.height / 10} m</span>
             </div>
             <div className="glass-card p-3 rounded-xl flex flex-col items-center shadow-sm">
-              <span className="text-slate-500 dark:text-slate-400 mb-1 text-xs">Weight</span>
+              <span className="text-slate-500 dark:text-slate-400 mb-1 text-xs uppercase tracking-wider">Weight</span>
               <span className="font-bold text-slate-800 dark:text-slate-200">{pokemon.weight / 10} kg</span>
             </div>
           </div>
@@ -172,7 +172,7 @@ const SidebarDetails = ({ pokemon, isDark, onClose }) => {
 
         <div className="mb-6">
           <h3 className="text-base font-bold mb-3 text-slate-800 dark:text-white">Pokedex Entry</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 italic leading-relaxed bg-white/50 dark:bg-black/20 p-4 rounded-xl border border-white/50 dark:border-slate-700/50">
+          <p className="text-sm text-slate-600 dark:text-slate-300 italic leading-relaxed bg-white/60 dark:bg-black/30 p-4 rounded-xl border border-white/50 dark:border-slate-700/50 shadow-inner">
             {loadingExtra ? 'Loading description...' : flavorText}
           </p>
         </div>
@@ -184,12 +184,23 @@ const SidebarDetails = ({ pokemon, isDark, onClose }) => {
               const statName = stat.stat.name === 'special-attack' ? 'Sp. Atk' : 
                                stat.stat.name === 'special-defense' ? 'Sp. Def' : 
                                capitalize(stat.stat.name);
+              
+              // Custom colors for specific stats to make them pop
+              const statColors = {
+                'hp': 'bg-red-500',
+                'attack': 'bg-orange-500',
+                'defense': 'bg-yellow-400',
+                'special-attack': 'bg-blue-400',
+                'special-defense': 'bg-green-400',
+                'speed': 'bg-pink-400'
+              };
+
               return (
                 <StatBar 
                   key={`${pokemon.id}-${stat.stat.name}`}
                   label={statName}
                   value={stat.base_stat}
-                  colorClass={stat.base_stat > 70 ? (stat.base_stat > 100 ? 'bg-green-500' : 'bg-blue-500') : 'bg-orange-500'}
+                  colorClass={statColors[stat.stat.name] || 'bg-slate-500'}
                 />
               );
             })}
@@ -200,8 +211,8 @@ const SidebarDetails = ({ pokemon, isDark, onClose }) => {
           <h3 className="text-base font-bold mb-3 text-slate-800 dark:text-white">Abilities</h3>
           <div className="flex flex-wrap gap-2">
             {pokemon.abilities.map(a => (
-              <span key={a.ability.name} className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 shadow-sm border border-slate-200 dark:border-slate-700">
-                {capitalize(a.ability.name)} {a.is_hidden && <span className="text-xs text-slate-400 ml-1">(Hidden)</span>}
+              <span key={a.ability.name} className="px-4 py-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-500/20 dark:to-purple-500/20 rounded-xl text-sm font-bold text-slate-800 dark:text-slate-200 border border-blue-500/20 dark:border-blue-400/30 shadow-sm">
+                {capitalize(a.ability.name)} {a.is_hidden && <span className="text-xs opacity-70 font-medium ml-1">(Hidden)</span>}
               </span>
             ))}
           </div>

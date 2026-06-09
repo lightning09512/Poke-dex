@@ -67,6 +67,30 @@ export const getCardBackground = (type, isDark = false) => {
   return selected || (isDark ? 'bg-slate-800/30' : 'bg-slate-100/80');
 };
 
+export const getSolidTypeColor = (type) => {
+  const solidColors = {
+    grass: 'bg-[#4ade80] text-slate-900',
+    fire: 'bg-[#f87171] text-white',
+    water: 'bg-[#60a5fa] text-white',
+    bug: 'bg-[#a3e635] text-slate-900',
+    normal: 'bg-[#9ca3af] text-white',
+    poison: 'bg-[#c084fc] text-white',
+    electric: 'bg-[#facc15] text-slate-900',
+    ground: 'bg-[#eab308] text-white',
+    fairy: 'bg-[#f472b6] text-white',
+    fighting: 'bg-[#fb923c] text-white',
+    psychic: 'bg-[#fb7185] text-white',
+    rock: 'bg-[#b45309] text-white',
+    ghost: 'bg-[#a78bfa] text-white',
+    ice: 'bg-[#7dd3fc] text-slate-900',
+    dragon: 'bg-[#818cf8] text-white',
+    dark: 'bg-[#3f3f46] text-white',
+    steel: 'bg-[#94a3b8] text-white',
+    flying: 'bg-[#c7d2fe] text-slate-900',
+  };
+  return solidColors[type] || 'bg-slate-500 text-white';
+};
+
 export const formatPokemonId = (id) => {
   return `#${id.toString().padStart(3, '0')}`;
 };
